@@ -1,0 +1,11 @@
+GPL-2.0 License
+
+This project is licensed under the GNU General Public License v2.0,
+the same license as the Linux kernel.
+
+This ensures compatibility with the Linux kernel and allows
+these drivers to be integrated into the mainline kernel if desired.
+
+Full license text: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+

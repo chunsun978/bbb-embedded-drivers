@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Overlay for BBB Flagship Button Driver
+ *
+ * Pin: P8_07 → Linux gpiochip1 line 2 (TI GPIO2_2 @ 0x481AC000)
+ *
+ * Compile with:
+ *   dtc -@ -I dts -O dtb -o bbb-flagship-button.dtbo bbb-flagship-button.dtso
+ */
+
+/dts-v1/;
+/plugin/;
+
+/*
+ * Hardcoded values (dtc doesn't process C #defines):
+ *   GPIO_ACTIVE_LOW = 1
+ *
+ * Pin relies on default boot configuration (no explicit pinmux).
+ */
+
+/ {
+    /* Must match the base board */
+    compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+
+    /*
+     * Fragment 0: Add our button device node to the root
+     */
+    fragment@0 {
+        target-path = "/";
+        __overlay__ {
+            bbb_flagship_button: bbb-flagship-button {
+                /* Binds to our kernel driver */
+                compatible = "bbb,bbb-flagship-button";
+                status = "okay";
+
+                /*
+                 * GPIO specification:
+                 * - &gpio2 = TI GPIO2 at 0x481AC000 (P8_07 is GPIO2_2)
+                 * - 2 = line number within that bank
+                 * - 1 = GPIO_ACTIVE_LOW (button pulls to GND when pressed)
+                 *
+                 * Note: Linux gpiochip1 ≠ DT &gpio1!
+                 *   - DT &gpio1 → TI GPIO1 @ 0x4804C000
+                 *   - DT &gpio2 → TI GPIO2 @ 0x481AC000 (where P8_07 lives)
+                 *   - Linux gpiochip1 → TI GPIO2 (probe order differs from DT naming)
+                 */
+                button-gpios = <&gpio2 2 1>;
+
+                /* Software debounce time in milliseconds */
+                debounce-ms = <20>;
+            };
+        };
+    };
+};

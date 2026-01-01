@@ -1,0 +1,67 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "ti,beaglebone", "ti,beaglebone-black";
+	part-number = "MCP3008-COMPLETE";
+	version = "00A0";
+
+	/*
+	 * Helper to show loaded overlays (for debugging)
+	 */
+	fragment@0 {
+		target-path="/";
+		__overlay__ {
+			chosen {
+				overlays {
+					MCP3008-COMPLETE;
+				};
+			};
+		};
+	};
+
+	/*
+	 * Configure SPI0 pins
+	 * P9_22 (SCLK), P9_21 (MISO), P9_18 (MOSI), P9_17 (CS0)
+	 */
+	fragment@1 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+			bb_spi0_pins: pinmux_bb_spi0_pins {
+				pinctrl-single,pins = <
+					0x150 0x30  /* P9_22: spi0_sclk, MODE0 | INPUT_PULLUP */
+					0x154 0x30  /* P9_21: spi0_d0 (MISO), MODE0 | INPUT_PULLUP */
+					0x158 0x10  /* P9_18: spi0_d1 (MOSI), MODE0 | OUTPUT_PULLUP */
+					0x15c 0x10  /* P9_17: spi0_cs0, MODE0 | OUTPUT_PULLUP */
+				>;
+			};
+		};
+	};
+
+	/*
+	 * Enable and configure SPI0 controller
+	 */
+	fragment@2 {
+		target = <&spi0>;
+		__overlay__ {
+			status = "okay";
+			pinctrl-names = "default";
+			pinctrl-0 = <&bb_spi0_pins>;
+			
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			/*
+			 * MCP3008 8-channel 10-bit ADC
+			 * Connected to CS0
+			 */
+			mcp3008: mcp3008@0 {
+				compatible = "microchip,mcp3008";
+				reg = <0>;  /* CS0 */
+				spi-max-frequency = <1000000>;  /* 1 MHz */
+				/* vref defaults to 3.3V in driver */
+			};
+		};
+	};
+};
+

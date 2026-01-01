@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Overlay for TMP117 Temperature Sensor
+ *
+ * I2C2: P9_19 (SCL) / P9_20 (SDA)
+ * Address: 0x48 (TMP117 default)
+ *
+ * Compile with:
+ *   dtc -@ -I dts -O dtb -o bbb-flagship-tmp117.dtbo bbb-flagship-tmp117.dtso
+ */
+
+/dts-v1/;
+/plugin/;
+
+/ {
+    /* Must match the base board */
+    compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+
+    /*
+     * Fragment 0: Enable I2C2 if not already enabled
+     */
+    fragment@0 {
+        target = <&i2c2>;
+        __overlay__ {
+            status = "okay";
+            clock-frequency = <400000>;  /* 400kHz Fast Mode */
+
+			bbb_tmp117@48 {
+				compatible = "bbb,tmp117";  /* Custom driver */
+				reg = <0x48>;
+				status = "okay";
+			};
+        };
+    };
+};
+

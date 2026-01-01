@@ -1,0 +1,28 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+	/* Identify this overlay */
+	part-number = "MCP3008-SPI0";
+	version = "00A0";
+
+	/* Fragment to enable SPI0 */
+	fragment@0 {
+		target = <&spi0>;
+		__overlay__ {
+			status = "okay";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			/* MCP3008 device on SPI0, CS0 */
+			mcp3008@0 {
+				compatible = "microchip,mcp3008";
+				reg = <0>;  /* CS0 */
+				spi-max-frequency = <1000000>;  /* 1 MHz */
+				/* vref defaults to 3.3V in driver if not specified */
+			};
+		};
+	};
+};
